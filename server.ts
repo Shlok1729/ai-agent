@@ -3,6 +3,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { GoogleGenAI, Type, ThinkingLevel } from '@google/genai';
+import { exec } from 'child_process';
+import util from 'util';
+
+const execPromise = util.promisify(exec);
 
 dotenv.config();
 
@@ -566,6 +570,36 @@ Provide an insightful, helpful, directly actionable response. If generating text
     });
   } catch (error) {
     return handleGenAiError(res, error, 'copilot agent');
+// 10. Direct Git Push to GitHub
+app.post('/api/git/push', async (req: Request, res: Response) => {
+  try {
+    const { token, username = 'Shlok1729', repo = 'ai-agent' } = req.body;
+    if (!token || typeof token !== 'string') {
+      return res.status(400).json({ error: 'GitHub Personal Access Token is required to authenticate push.' });
+    }
+
+    const cleanToken = token.trim();
+    const cleanUser = username.trim().replace(/[^a-zA-Z0-9_-]/g, '');
+    const cleanRepo = repo.trim().replace(/[^a-zA-Z0-9_.-]/g, '');
+
+    const pushUrl = `https://${cleanToken}@github.com/${cleanUser}/${cleanRepo}.git`;
+
+    const { stdout, stderr } = await execPromise(`git push -u "${pushUrl}" main`, {
+      timeout: 30000,
+    });
+
+    return res.json({
+      success: true,
+      message: `Successfully published repository to https://github.com/${cleanUser}/${cleanRepo}!`,
+      output: stdout || stderr || 'Pushed successfully.',
+    });
+  } catch (err: unknown) {
+    console.error('Git push error:', err);
+    const msg = err instanceof Error ? err.message : String(err);
+    const sanitized = msg.replace(/https:\/\/[^@]+@/g, 'https://***@');
+    return res.status(500).json({
+      error: `Failed to push to GitHub: ${sanitized}`,
+    });
   }
 });
 
