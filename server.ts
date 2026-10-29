@@ -570,6 +570,9 @@ Provide an insightful, helpful, directly actionable response. If generating text
     });
   } catch (error) {
     return handleGenAiError(res, error, 'copilot agent');
+  }
+});
+
 // 10. Direct Git Push to GitHub
 app.post('/api/git/push', async (req: Request, res: Response) => {
   try {
