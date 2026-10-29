@@ -53,8 +53,8 @@
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/brainboom-ai-agent.git
-cd brainboom-ai-agent
+git clone https://github.com/Shlok1729/ai-agent.git
+cd ai-agent
 ```
 
 ### 2. Install dependencies
